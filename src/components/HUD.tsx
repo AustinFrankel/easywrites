@@ -90,6 +90,9 @@ export function HUD() {
               <button className="ghost" onClick={() => setSettings({ gradient: 'sunset' })} style={{ background: 'linear-gradient(90deg, #F59E0B, #F97066)' }} aria-label="Sunset gradient"></button>
               <button className="ghost" onClick={() => setSettings({ gradient: 'sea' })} style={{ background: 'linear-gradient(90deg, #6EE7F2, #22C55E)' }} aria-label="Sea gradient"></button>
               <button className="ghost" onClick={() => setSettings({ gradient: 'aurora' })} style={{ background: 'linear-gradient(90deg, #8b5cf6, #06b6d4, #22c55e)' }} aria-label="Aurora gradient"></button>
+              <button className="ghost" onClick={() => setSettings({ gradient: 'fire' })} style={{ background: 'linear-gradient(90deg, #F97316, #EF4444)' }} aria-label="Fire gradient"></button>
+              <button className="ghost" onClick={() => setSettings({ gradient: 'ocean' })} style={{ background: 'linear-gradient(90deg, #38bdf8, #14b8a6)' }} aria-label="Ocean gradient"></button>
+              <button className="ghost" onClick={() => setSettings({ gradient: 'sunrise' })} style={{ background: 'linear-gradient(90deg, #fde047, #fb7185)' }} aria-label="Sunrise gradient"></button>
             </div>
             <div className="row">
               {/* Solid palette is filtered by theme in runtime */}

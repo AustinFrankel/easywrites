@@ -15,7 +15,7 @@ function App() {
   useEffect(() => { applyTheme(settings.theme) }, [])
   useGlobalShortcuts()
   return (
-    <div>
+    <div onMouseDown={() => (document.querySelector('.editor-input') as HTMLElement | null)?.focus()}>
       <TopBar />
       <Editor />
       <HUD />
