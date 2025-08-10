@@ -143,6 +143,8 @@ export function Editor() {
       await saveDoc(next)
       dispatchMetrics()
     }, 500)
+    // fire metrics immediately for snappy HUD and counter updates
+    dispatchMetrics()
   }
 
   useEffect(() => {
@@ -204,7 +206,7 @@ export function Editor() {
 
   // Keep metrics updating even when idle, prevents flashing to zero between keystrokes
   useEffect(() => {
-    const id = window.setInterval(() => dispatchMetrics(), 700)
+    const id = window.setInterval(() => dispatchMetrics(), 300)
     return () => window.clearInterval(id)
   }, [doc])
 
@@ -228,10 +230,18 @@ export function Editor() {
   return (
     <div className="editor-container" data-focus={settings.focus ? '1' : '0'}>
       <div className="editor-surface" style={{ fontFamily, fontSize: settings.size }}>
+        <div className="word-counter" aria-hidden>{countWords(doc.content)}</div>
         {/* floating toolbar removed to avoid interfering with top title interactions */}
         <LexicalComposer initialConfig={initialConfig}>
           <RichTextPlugin
-            contentEditable={<ContentEditable className="editor-input" aria-label="Editor" spellCheck={settings.spell} style={textStyle} />}
+            contentEditable={
+              <ContentEditable
+                className="editor-input"
+                aria-label="Editor"
+                spellCheck={true}
+                style={textStyle}
+              />
+            }
             placeholder={<Placeholder />}
             ErrorBoundary={({ children }) => <>{children}</>}
           />

@@ -15,5 +15,10 @@ export function applyTheme(theme: 'dark' | 'light') {
     // default text color for dark mode
     root.style.setProperty('--text-default', '#E6E6E6')
   }
+  // Ensure chosen text color stays visible in both themes: switch to black on light bg, white on dark bg
+  const ink = getComputedStyle(root).getPropertyValue('--ink').trim()
+  // If current settings color equals previous text-default, update it to match ink for contrast
+  const sampleEl = document.querySelector('.editor-input') as HTMLElement | null
+  if (sampleEl) sampleEl.style.caretColor = ink
 }
 
