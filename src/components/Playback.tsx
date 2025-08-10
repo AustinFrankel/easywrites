@@ -15,6 +15,11 @@ export function Playback() {
   const [isScrubbing, setIsScrubbing] = useState(false)
   const [speedMenuOpen, setSpeedMenuOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  useEffect(() => {
+    const onKey = () => { setSpeedMenuOpen(false); setExportMenuOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
   const textBuffer = useRef('')
   const rafRef = useRef<number | null>(null)
   const startRef = useRef<number>(0)
@@ -52,12 +57,9 @@ export function Playback() {
       else if ((e as any).op === 'del') txt = txt.slice(0, (e as any).from) + txt.slice((e as any).to)
     }
     textBuffer.current = txt
-    // background vignette
+    // flatter, simpler background
     ctx.clearRect(0,0,c.width,c.height)
-    const grad = ctx.createLinearGradient(0,0,0,c.height)
-    grad.addColorStop(0,'rgba(255,255,255,0.03)')
-    grad.addColorStop(1,'rgba(255,255,255,0)')
-    ctx.fillStyle = grad
+    ctx.fillStyle = 'rgba(255,255,255,0.02)'
     ctx.fillRect(0,0,c.width,c.height)
     // text
     ctx.fillStyle = color
@@ -158,16 +160,16 @@ export function Playback() {
           <strong>Playback</strong>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', position: 'relative' }}>
             <button className="ghost" onClick={togglePlay}>{playing ? 'Pause' : 'Play'}</button>
-            <span className={`speed-pop ${speedMenuOpen ? 'open' : ''}`} onMouseEnter={() => setSpeedMenuOpen(true)} onMouseLeave={() => setSpeedMenuOpen(false)}>
-              <button className="ghost">{speed}x</button>
+            <span className={`speed-pop ${speedMenuOpen ? 'open' : ''}`}>
+              <button className="ghost" onClick={() => setSpeedMenuOpen(v => !v)}>{speed}x</button>
               <div style={{ position: 'absolute', top: 30, right: 0, background: 'color-mix(in oklab, var(--panel) 92%, transparent)', borderRadius: 10, padding: 6, boxShadow: '0 10px 24px rgba(0,0,0,0.35)', display: speedMenuOpen ? 'flex' : 'none', gap: 4 }}>
                 {[1, 1.25, 1.5, 2, 3].map((s) => (
                   <button key={s} className="ghost" onClick={() => setSpeed(s)}>{s}x</button>
                 ))}
               </div>
             </span>
-            <span onMouseEnter={() => setExportMenuOpen(true)} onMouseLeave={() => setExportMenuOpen(false)} style={{ position: 'relative' }}>
-              <button className="ghost">Export</button>
+            <span style={{ position: 'relative' }}>
+              <button className="ghost" onClick={() => setExportMenuOpen(v => !v)}>Export</button>
               <div style={{ position: 'absolute', top: 30, right: 0, background: 'color-mix(in oklab, var(--panel) 92%, transparent)', borderRadius: 10, padding: 6, boxShadow: '0 10px 24px rgba(0,0,0,0.35)', display: exportMenuOpen ? 'flex' : 'none', gap: 6 }}>
                 <button className="ghost" onClick={() => exportVideo('mp4')}>MP4</button>
                 <button className="ghost" onClick={() => exportVideo('mov')}>MOV</button>
@@ -200,9 +202,9 @@ export function Playback() {
           onMouseLeave={() => setIsScrubbing(false)}
         >
           <div style={{ position: 'absolute', inset: 0, borderRadius: 999, overflow: 'hidden' }}>
-            <div style={{ width: `${Math.round(progress * 100)}%`, height: '100%', background: 'linear-gradient(90deg, var(--brand), var(--accent))', transition: isScrubbing ? 'none' : 'width 150ms ease' }} />
+            <div style={{ width: `${progress * 100}%`, height: '100%', background: 'linear-gradient(90deg, var(--brand), var(--accent))', transition: isScrubbing ? 'none' : 'width 200ms cubic-bezier(.22,.61,.36,1)' }} />
           </div>
-          <div style={{ position: 'absolute', top: '50%', left: `${Math.round(progress * 100)}%`, transform: 'translate(-50%, -50%)', width: 16, height: 16, borderRadius: '50%', background: 'var(--ink)', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', transition: isScrubbing ? 'none' : 'left 120ms ease' }} />
+          <div style={{ position: 'absolute', top: '50%', left: `${progress * 100}%`, transform: 'translate(-50%, -50%)', width: 16, height: 16, borderRadius: '50%', background: 'var(--ink)', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', transition: isScrubbing ? 'none' : 'left 160ms cubic-bezier(.22,.61,.36,1)' }} />
         </div>
       </div>
     </div>
