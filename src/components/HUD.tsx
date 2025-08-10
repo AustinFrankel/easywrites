@@ -67,9 +67,9 @@ export function HUD() {
       <span className="chip">Chars: {chars}</span>
       <span className="chip">Words: {words}</span>
       <span className="chip" title="Time on page">Time: {formatTime(focusSeconds)}</span>
-      <span className={`font-pop ${fontOpen ? 'open' : ''}`} onMouseLeave={() => setFontOpen(false)}>
+      <span className={`font-pop ${fontOpen ? 'open' : ''}`} onMouseEnter={() => setFontOpen(true)} onMouseLeave={() => setFontOpen(false)}>
         <button className="ghost" aria-label="Font selector" onClick={() => setFontOpen(v => !v)}>{settings.font}</button>
-        <div className="font-menu" onMouseEnter={() => setFontOpen(true)}>
+        <div className="font-menu" onMouseEnter={() => setFontOpen(true)} onMouseLeave={() => setFontOpen(false)}>
           <button className="ghost" onClick={() => { setSettings({ font: 'sans' }); setFontOpen(false) }} style={{ fontFamily: 'var(--font-ui)' }}>Sans</button>
           <button className="ghost" onClick={() => { setSettings({ font: 'serif' }); setFontOpen(false) }} style={{ fontFamily: 'var(--font-serif)' }}>Serif</button>
           <button className="ghost" onClick={() => { setSettings({ font: 'mono' }); setFontOpen(false) }} style={{ fontFamily: 'var(--font-mono)' }}>Mono</button>
@@ -80,9 +80,11 @@ export function HUD() {
       <span className="quick">
         <button className="ghost" aria-label="Decrease font" onClick={() => setSettings({ size: Math.max(12, Math.round(settings.size - 1)) })}>A−</button>
         <button className="ghost" aria-label="Increase font" onClick={() => setSettings({ size: Math.min(28, Math.round(settings.size + 1)) })}>A＋</button>
-        <span className={`color-pop ${colorOpen ? 'open' : ''}`} onMouseLeave={() => setColorOpen(false)}>
-          <button className="ghost color-trigger" aria-label="Text color" onClick={() => setColorOpen(true)} />
-          <div className="palette rows" onMouseEnter={() => setColorOpen(true)}>
+        <span className={`color-pop ${colorOpen ? 'open' : ''}`} onMouseEnter={() => setColorOpen(true)} onMouseLeave={() => setColorOpen(false)}>
+          <button className="ghost color-trigger" aria-label="Text color" onClick={() => setColorOpen(true)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l7 18H5L12 3z" stroke="currentColor" strokeWidth="1.5" fill="url(#g)"/><defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24"><stop stopColor="#9B87F5"/><stop offset="1" stopColor="#6EE7F2"/></linearGradient></defs></svg>
+          </button>
+          <div className="palette rows" onMouseEnter={() => setColorOpen(true)} onMouseLeave={() => setColorOpen(false)}>
             <div className="row">
               <button className="ghost" onClick={() => setSettings({ gradient: 'brand' })} style={{ background: 'linear-gradient(90deg, var(--brand), var(--accent))' }} aria-label="Brand gradient"></button>
               <button className="ghost" onClick={() => setSettings({ gradient: 'sunset' })} style={{ background: 'linear-gradient(90deg, #F59E0B, #F97066)' }} aria-label="Sunset gradient"></button>

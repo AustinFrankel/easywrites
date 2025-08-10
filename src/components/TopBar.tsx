@@ -59,6 +59,8 @@ export function TopBar() {
           padding: '6px 10px',
           fontSize: 14,
           transition: 'background 150ms ease',
+          textAlign: 'center',
+          minWidth: 200,
         }}
         onFocus={(e) => (e.currentTarget.style.background = 'color-mix(in oklab, var(--panel) 75%, transparent)')}
         onBlurCapture={(e) => (e.currentTarget.style.background = 'color-mix(in oklab, var(--panel) 60%, transparent)')}

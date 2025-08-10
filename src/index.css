@@ -22,7 +22,7 @@
   --font-serif: ui-serif, Charter, "Bitstream Charter", "Sitka Text", Cambria, serif;
   --font-rounded: ui-rounded, "SF Pro Rounded", "Nunito", "Quicksand", system-ui, sans-serif;
   --font-slab: "Roboto Slab", "Rockwell", "Zilla Slab", Cambria, serif;
-  --editor-zoom: 1.12;
+  --editor-zoom: 1.28;
 }
 
 * { box-sizing: border-box; }
@@ -79,7 +79,7 @@ input, textarea, select, button, [contenteditable="true"] {
 }
 .editor-surface {
   width: min(68ch, calc(100vw - 48px));
-  margin: 0 auto;
+  margin: 16px auto 0;
   line-height: 1.6;
   letter-spacing: 0.01em;
   outline: none;
@@ -115,17 +115,19 @@ input, textarea, select, button, [contenteditable="true"] {
 .hud {
   position: fixed;
   left: 50%;
-  bottom: 20px;
+  bottom: 28px;
   transform: translateX(-50%);
   background: color-mix(in oklab, var(--panel) 80%, transparent);
   color: var(--ink);
-  padding: 16px 20px;
+  padding: 18px 24px;
   border-radius: 999px;
   display: flex;
   gap: 18px;
   align-items: center;
   box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   transition: opacity 150ms ease, transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+  font-size: 14px;
+  font-family: var(--font-ui);
 }
 .hud.hide {
   opacity: 0;
@@ -160,7 +162,7 @@ input, textarea, select, button, [contenteditable="true"] {
   outline: 1px solid color-mix(in oklab, var(--brand) 60%, transparent);
 }
 
-.chip { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.chip { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 
 /* Ghost buttons: minimalist, with hover animation */
 .ghost {
@@ -171,6 +173,7 @@ input, textarea, select, button, [contenteditable="true"] {
   padding: 6px 8px;
   border-radius: 8px;
   transition: color 150ms ease, transform 150ms ease, background 150ms ease;
+  font-size: 14px;
 }
 .ghost:hover { color: var(--ink); transform: translateY(-1px); background: color-mix(in oklab, var(--panel) 40%, transparent); }
 .ghost:active { transform: translateY(0); }

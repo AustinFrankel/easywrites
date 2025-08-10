@@ -181,7 +181,7 @@ export function Playback() {
           <canvas ref={canvasRef} width={1000} height={520} style={{ width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))', borderRadius: 8 }} />
         </div>
         <div
-          style={{ position: 'relative', width: '100%', height: 14, background: 'rgba(255,255,255,0.08)', borderRadius: 999 }}
+          style={{ position: 'relative', width: '100%', height: 16, background: 'rgba(255,255,255,0.08)', borderRadius: 999, cursor: 'pointer' }}
           onMouseDown={(e) => {
             setIsScrubbing(true)
             const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
@@ -196,13 +196,13 @@ export function Playback() {
             setProgress(p)
             drawAt(p)
           }}
-          onMouseUp={() => { setIsScrubbing(false); if (playing) { startRef.current = 0 } }}
+          onMouseUp={() => { setIsScrubbing(false); if (playing) { startRef.current = 0 } else { drawAt(progress) } }}
           onMouseLeave={() => setIsScrubbing(false)}
         >
           <div style={{ position: 'absolute', inset: 0, borderRadius: 999, overflow: 'hidden' }}>
             <div style={{ width: `${Math.round(progress * 100)}%`, height: '100%', background: 'linear-gradient(90deg, var(--brand), var(--accent))', transition: isScrubbing ? 'none' : 'width 150ms ease' }} />
           </div>
-          <div style={{ position: 'absolute', top: '50%', left: `${Math.round(progress * 100)}%`, transform: 'translate(-50%, -50%)', width: 14, height: 14, borderRadius: '50%', background: 'var(--ink)', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', transition: isScrubbing ? 'none' : 'left 150ms ease' }} />
+          <div style={{ position: 'absolute', top: '50%', left: `${Math.round(progress * 100)}%`, transform: 'translate(-50%, -50%)', width: 16, height: 16, borderRadius: '50%', background: 'var(--ink)', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', transition: isScrubbing ? 'none' : 'left 120ms ease' }} />
         </div>
       </div>
     </div>
