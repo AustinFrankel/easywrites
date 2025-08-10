@@ -103,6 +103,17 @@ input, textarea, select, button, [contenteditable="true"] {
 .editor-input:focus { outline: none; }
 .editor-input p { margin: 0; }
 
+.word-counter {
+  position: absolute;
+  top: -26px;
+  left: 8px;
+  color: var(--warn);
+  font-size: 26px;
+  font-weight: 700;
+  user-select: none;
+  pointer-events: none;
+}
+
 .editor-placeholder {
   position: absolute;
   top: 0px;
