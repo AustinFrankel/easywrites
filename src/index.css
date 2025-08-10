@@ -105,12 +105,12 @@ input, textarea, select, button, [contenteditable="true"] {
 
 .editor-placeholder {
   position: absolute;
-  top: 44px;
-  left: 8px;
+  top: 0px;
+  left: 0px;
   color: color-mix(in oklab, var(--ink) 40%, transparent);
   pointer-events: none;
   font: inherit;
-  font-size: 32px;
+  font-size: 0.9em;
   line-height: inherit;
 }
 
@@ -131,6 +131,7 @@ input, textarea, select, button, [contenteditable="true"] {
   transition: opacity 150ms ease, transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
   font-size: 14px;
   font-family: var(--font-ui);
+  min-width: 680px;
 }
 .hud.hide {
   opacity: 0;
