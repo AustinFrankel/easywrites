@@ -231,7 +231,14 @@ export function Editor() {
         {/* floating toolbar removed to avoid interfering with top title interactions */}
         <LexicalComposer initialConfig={initialConfig}>
           <RichTextPlugin
-            contentEditable={<ContentEditable className="editor-input" aria-label="Editor" spellCheck={settings.spell} style={textStyle} />}
+            contentEditable={
+              <ContentEditable
+                className="editor-input"
+                aria-label="Editor"
+                spellCheck={true}
+                style={textStyle}
+              />
+            }
             placeholder={<Placeholder />}
             ErrorBoundary={({ children }) => <>{children}</>}
           />

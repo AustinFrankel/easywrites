@@ -78,7 +78,20 @@ export const useAppStore = create<AppState>()(
       },
 
       setHudVisible(v) { set({ hudVisible: v }) },
-      setSettings(p) { set((s) => ({ settings: { ...s.settings, ...p } })) },
+      setSettings(p) {
+        set((s) => ({ settings: { ...s.settings, ...p } }))
+        // Notify listeners and return typing focus to the editor input
+        try {
+          window.dispatchEvent(new CustomEvent('easywrites:settings-changed'))
+          // Restore focus on next tick so typing always goes to the editor
+          window.setTimeout(() => {
+            const el = document.querySelector('.editor-input') as HTMLElement | null
+            el?.focus()
+          }, 0)
+        } catch {
+          // no-op in non-DOM environments
+        }
+      },
     }),
     { name: 'easywrites-store' }
   )

@@ -5,6 +5,12 @@ type ExportFormat = 'mp4' | 'mov' | 'gif'
 
 type KS = { t: number; op: 'ins'|'del'; ch?: string; from: number; to: number }
 
+function formatElapsed(seconds: number) {
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
 export function Playback() {
   const [open, setOpen] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -44,7 +50,7 @@ export function Playback() {
     if (!open || events.length === 0) return
     const c = canvasRef.current!
     const ctx = c.getContext('2d')!
-    const total = events[events.length - 1].t - events[0].t
+    const total = Math.max(1, events[events.length - 1].t - events[0].t)
     const elapsed = Math.max(0, Math.min(total, total * p))
     const tCut = events[0].t + elapsed
     let txt = ''
@@ -74,7 +80,7 @@ export function Playback() {
     const render = (time: number) => {
       if (!playing) return
       if (!startRef.current) startRef.current = time
-      const total = events[events.length - 1].t - events[0].t
+      const total = Math.max(1, events[events.length - 1].t - events[0].t)
       const elapsed = Math.min(total, (time - startRef.current) * speed)
       const p = total === 0 ? 0 : elapsed / total
       setElapsedSec(Math.round(elapsed / 1000))
@@ -88,6 +94,12 @@ export function Playback() {
   }, [open, events, playing, speed])
 
   const togglePlay = () => { setPlaying((p) => !p); startRef.current = 0 }
+
+  // If speed changes during playback, continue smoothly from current progress
+  useEffect(() => {
+    if (!playing) return
+    startRef.current = 0
+  }, [speed])
 
   async function exportVideo(format: ExportFormat) {
     const canvas = canvasRef.current!
@@ -143,8 +155,8 @@ export function Playback() {
     window.dispatchEvent(new CustomEvent('easywrites:toast', { detail: { message: `Saved ${outExt.toUpperCase()}` } }))
   }
 
-  // Auto-play when opened and data ready
-  useEffect(() => { if (open && events.length > 0) { setPlaying(true); startRef.current = 0 } }, [open, events])
+  // Do not auto-play; start only when user presses Play or types a key
+  useEffect(() => { if (!open) { setPlaying(false); setProgress(0); startRef.current = 0 } }, [open])
 
   // Space/any key to start
   useEffect(() => {
@@ -153,6 +165,16 @@ export function Playback() {
     window.addEventListener('keydown', handler, { once: true })
     return () => window.removeEventListener('keydown', handler)
   }, [open])
+
+  // Keep progress continuous across speed changes
+  useEffect(() => {
+    if (!playing || events.length === 0) return
+    const total = Math.max(1, events[events.length - 1].t - events[0].t)
+    const elapsed = progress * total
+    // anchor the new startRef such that elapsed = (now - startRef) * speed
+    const now = performance.now()
+    startRef.current = now - (elapsed / speed)
+  }, [speed])
 
   if (!open) return null
   return (
@@ -166,7 +188,7 @@ export function Playback() {
               <button className="ghost" onClick={() => setSpeedMenuOpen(v => !v)}>{speed}x</button>
               <div style={{ position: 'absolute', top: 30, right: 0, background: 'color-mix(in oklab, var(--panel) 92%, transparent)', borderRadius: 10, padding: 6, boxShadow: '0 10px 24px rgba(0,0,0,0.35)', display: speedMenuOpen ? 'flex' : 'none', gap: 4 }}>
                 {[1, 1.25, 1.5, 2, 3].map((s) => (
-                  <button key={s} className="ghost" onClick={() => setSpeed(s)}>{s}x</button>
+                  <button key={s} className="ghost" onClick={() => { setSpeed(s); setSpeedMenuOpen(false) }}>{s}x</button>
                 ))}
               </div>
             </span>
@@ -183,7 +205,7 @@ export function Playback() {
         </div>
         <div style={{ position: 'relative' }}>
           <canvas ref={canvasRef} width={1000} height={520} style={{ width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))', borderRadius: 8 }} />
-          <div style={{ position: 'absolute', bottom: 12, right: 12, fontSize: 12, color: 'var(--muted)', padding: '4px 8px', background: 'rgba(0,0,0,0.18)', borderRadius: 999 }}>{new Date(elapsedSec * 1000).toISOString().substring(14,19)}</div>
+          <div style={{ position: 'absolute', bottom: 12, right: 12, fontSize: 12, color: 'var(--muted)', padding: '4px 8px', background: 'rgba(0,0,0,0.18)', borderRadius: 999 }}>{formatElapsed(elapsedSec)}</div>
         </div>
         <div
           style={{ position: 'relative', width: '100%', height: 16, background: 'rgba(255,255,255,0.08)', borderRadius: 999, cursor: 'pointer' }}

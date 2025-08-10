@@ -4,7 +4,8 @@ import { useAppStore } from '../store'
 function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60)
   const s = Math.floor(seconds % 60)
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  // Do not pad minutes with a leading zero
+  return `${m}:${String(s).padStart(2, '0')}`
 }
 
 export function HUD() {
@@ -94,7 +95,32 @@ export function HUD() {
             <button className="ghost" aria-label="Increase font" onClick={() => setSettings({ size: Math.min(28, Math.round(settings.size + 1)) })}>A＋</button>
             <span className={`color-pop ${colorOpen ? 'open' : ''}`}>
               <button className="ghost color-trigger" aria-label="Text color" onClick={() => setColorOpen(v => !v)}>
-                <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="url(#grad)" stroke="currentColor" strokeWidth="1.2"/><defs><linearGradient id="grad" x1="4" y1="4" x2="20" y2="20"><stop offset="0" stopColor="#6EE7F2"/><stop offset="1" stopColor="#9B87F5"/></linearGradient></defs></svg>
+                {/* Live color preview circle reflecting current gradient/color */}
+                <span
+                  aria-hidden
+                  style={{
+                    display: 'inline-block',
+                    width: 18,
+                    height: 18,
+                    borderRadius: 999,
+                    verticalAlign: 'middle',
+                    background: settings.gradient === 'brand'
+                      ? 'linear-gradient(90deg, var(--brand), var(--accent))'
+                      : settings.gradient === 'sunset'
+                      ? 'linear-gradient(90deg, #F59E0B, #F97066)'
+                      : settings.gradient === 'sea'
+                      ? 'linear-gradient(90deg, #6EE7F2, #22C55E)'
+                      : settings.gradient === 'aurora'
+                      ? 'linear-gradient(90deg, #8b5cf6, #06b6d4, #22c55e)'
+                      : settings.gradient === 'fire'
+                      ? 'linear-gradient(90deg, #F97316, #EF4444)'
+                      : settings.gradient === 'ocean'
+                      ? 'linear-gradient(90deg, #38bdf8, #14b8a6)'
+                      : settings.gradient === 'sunrise'
+                      ? 'linear-gradient(90deg, #fde047, #fb7185)'
+                      : (settings.color || '#E6E6E6'),
+                  }}
+                />
               </button>
               <div className="palette rows">
                 <div className="row">
