@@ -106,7 +106,7 @@ input, textarea, select, button, [contenteditable="true"] {
 .editor-placeholder {
   position: absolute;
   top: 0px;
-  left: 0px;
+  left: -1px; /* nudge to align exactly with caret */
   color: color-mix(in oklab, var(--ink) 40%, transparent);
   pointer-events: none;
   font: inherit;
