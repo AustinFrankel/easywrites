@@ -25,6 +25,8 @@ export function TopBar() {
   }, [])
 
   const onEnterNew = async () => {
+    // Reset settings and create a fresh doc
+    setSettings({ font: 'sans', size: 18, color: getComputedStyle(document.documentElement).getPropertyValue('--text-default')?.trim() || '#111827', gradient: '', focus: false, spell: true })
     await createDoc()
     inputRef.current?.focus()
   }
@@ -42,7 +44,7 @@ export function TopBar() {
 
   return (
     <div className="topbar" aria-label="Top bar">
-      <button onClick={onEnterNew} aria-label="New document" style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontWeight: 600, fontSize: 14 }}>
+      <button onClick={onEnterNew} aria-label="New document" style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontWeight: 600, fontSize: 16 }}>
         Easy Writes
       </button>
       <input
@@ -65,8 +67,8 @@ export function TopBar() {
         onFocus={(e) => (e.currentTarget.style.background = 'color-mix(in oklab, var(--panel) 75%, transparent)')}
         onBlurCapture={(e) => (e.currentTarget.style.background = 'color-mix(in oklab, var(--panel) 60%, transparent)')}
       />
-      <div style={{ display: 'flex', gap: 8 }} className="topbar-actions">
-        <button className="ghost" onClick={toggleTheme} aria-label="Toggle theme">{settings.theme === 'dark' ? 'Dark' : 'Light'}</button>
+      <div style={{ display: 'flex', gap: 10 }} className="topbar-actions">
+        <button className="ghost" onClick={toggleTheme} aria-label="Toggle theme" style={{ fontSize: 15 }}>{settings.theme === 'dark' ? 'Dark' : 'Light'}</button>
         <button className="ghost" aria-label="Open playback" onClick={() => window.dispatchEvent(new CustomEvent('easywrites:playback'))}>Playback</button>
         <button className="ghost" aria-label="Share" onClick={() => window.dispatchEvent(new CustomEvent('easywrites:export'))}>Share</button>
       </div>

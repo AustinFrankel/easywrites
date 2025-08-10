@@ -15,6 +15,7 @@ export function Playback() {
   const [isScrubbing, setIsScrubbing] = useState(false)
   const [speedMenuOpen, setSpeedMenuOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [elapsedSec, setElapsedSec] = useState(0)
   useEffect(() => {
     const onKey = () => { setSpeedMenuOpen(false); setExportMenuOpen(false) }
     window.addEventListener('keydown', onKey)
@@ -76,6 +77,7 @@ export function Playback() {
       const total = events[events.length - 1].t - events[0].t
       const elapsed = Math.min(total, (time - startRef.current) * speed)
       const p = total === 0 ? 0 : elapsed / total
+      setElapsedSec(Math.round(elapsed / 1000))
       setProgress(p)
       drawAt(p)
       if (elapsed >= total) { setPlaying(false); return }
@@ -181,6 +183,7 @@ export function Playback() {
         </div>
         <div style={{ position: 'relative' }}>
           <canvas ref={canvasRef} width={1000} height={520} style={{ width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))', borderRadius: 8 }} />
+          <div style={{ position: 'absolute', top: 8, right: 12, fontSize: 12, color: 'var(--muted)', padding: '4px 8px', background: 'rgba(0,0,0,0.18)', borderRadius: 999 }}>{new Date(elapsedSec * 1000).toISOString().substring(14,19)}</div>
         </div>
         <div
           style={{ position: 'relative', width: '100%', height: 16, background: 'rgba(255,255,255,0.08)', borderRadius: 999, cursor: 'pointer' }}
