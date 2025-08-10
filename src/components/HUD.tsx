@@ -98,7 +98,7 @@ export function HUD() {
               </button>
               <div className="palette rows">
                 <div className="row">
-                  <button className="ghost" onClick={() => { setSettings({ gradient: 'brand' }); setColorOpen(false) }} style={{ background: 'linear-gradient(90deg, var(--brand), var(--accent))' }} aria-label="Brand gradient"></button>
+              <button className="ghost" onClick={() => { setSettings({ gradient: 'brand' }); setColorOpen(false) }} style={{ background: 'linear-gradient(90deg, var(--brand), var(--accent))' }} aria-label="Brand gradient"></button>
                   <button className="ghost" onClick={() => { setSettings({ gradient: 'sunset' }); setColorOpen(false) }} style={{ background: 'linear-gradient(90deg, #F59E0B, #F97066)' }} aria-label="Sunset gradient"></button>
                   <button className="ghost" onClick={() => { setSettings({ gradient: 'sea' }); setColorOpen(false) }} style={{ background: 'linear-gradient(90deg, #6EE7F2, #22C55E)' }} aria-label="Sea gradient"></button>
                   <button className="ghost" onClick={() => { setSettings({ gradient: 'aurora' }); setColorOpen(false) }} style={{ background: 'linear-gradient(90deg, #8b5cf6, #06b6d4, #22c55e)' }} aria-label="Aurora gradient"></button>
@@ -109,12 +109,12 @@ export function HUD() {
                 <div className="row">
                   {/* Solid palette is filtered by theme in runtime */}
                   <ThemeAwareSwatches />
-                  <button className="ghost" onClick={() => setSettings({ gradient: '', color: '#9AA4B2' })} style={{ background: '#9AA4B2' }} aria-label="Muted"></button>
-                  <button className="ghost" onClick={() => setSettings({ gradient: '', color: '#22C55E' })} style={{ background: '#22C55E' }} aria-label="Green"></button>
-                  <button className="ghost" onClick={() => setSettings({ gradient: '', color: '#F59E0B' })} style={{ background: '#F59E0B' }} aria-label="Amber"></button>
-                  <button className="ghost" onClick={() => setSettings({ gradient: '', color: '#F97066' })} style={{ background: '#F97066' }} aria-label="Coral"></button>
-                  <button className="ghost" onClick={() => setSettings({ gradient: '', color: '#60A5FA' })} style={{ background: '#60A5FA' }} aria-label="Blue"></button>
-                  <button className="ghost" onClick={() => setSettings({ gradient: '', color: '#a78bfa' })} style={{ background: '#a78bfa' }} aria-label="Violet"></button>
+                  <button className="ghost" onClick={() => { setSettings({ gradient: '', color: '#9AA4B2' }); document.documentElement.style.setProperty('--ink', '#111827') }} style={{ background: '#9AA4B2' }} aria-label="Muted"></button>
+                  <button className="ghost" onClick={() => { setSettings({ gradient: '', color: '#22C55E' }); }} style={{ background: '#22C55E' }} aria-label="Green"></button>
+                  <button className="ghost" onClick={() => { setSettings({ gradient: '', color: '#F59E0B' }); }} style={{ background: '#F59E0B' }} aria-label="Amber"></button>
+                  <button className="ghost" onClick={() => { setSettings({ gradient: '', color: '#F97066' }); }} style={{ background: '#F97066' }} aria-label="Coral"></button>
+                  <button className="ghost" onClick={() => { setSettings({ gradient: '', color: '#60A5FA' }); }} style={{ background: '#60A5FA' }} aria-label="Blue"></button>
+                  <button className="ghost" onClick={() => { setSettings({ gradient: '', color: '#a78bfa' }); }} style={{ background: '#a78bfa' }} aria-label="Violet"></button>
                 </div>
               </div>
             </span>

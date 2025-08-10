@@ -124,7 +124,7 @@ export function Editor() {
     const words = countWords(text)
     const chars = [...text].length
     rolling.current.addSample(chars)
-    const wpm = rolling.current.getWPM()
+    const wpm = chars === 0 ? 0 : rolling.current.getWPM()
     const event = new CustomEvent('easywrites:metrics', {
       detail: { wpm, words, chars, typos: 0, focusSeconds: focusSeconds.current },
     })

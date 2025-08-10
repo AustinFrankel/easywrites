@@ -22,9 +22,9 @@
   --font-serif: ui-serif, Charter, "Bitstream Charter", "Sitka Text", Cambria, serif;
   --font-rounded: ui-rounded, "SF Pro Rounded", "Nunito", "Quicksand", system-ui, sans-serif;
   --font-slab: "Roboto Slab", "Rockwell", "Zilla Slab", Cambria, serif;
-  --editor-zoom: 1.24;
-  --editor-shift-x: -4vw;
-  --editor-shift-y: 32px;
+  --editor-zoom: 1.18;
+  --editor-shift-x: 6vw;
+  --editor-shift-y: 36px;
 }
 
 * { box-sizing: border-box; }
@@ -105,12 +105,12 @@ input, textarea, select, button, [contenteditable="true"] {
 
 .editor-placeholder {
   position: absolute;
-  top: 40px;
+  top: 44px;
   left: 8px;
   color: color-mix(in oklab, var(--ink) 40%, transparent);
   pointer-events: none;
   font: inherit;
-  font-size: 36px;
+  font-size: 32px;
   line-height: inherit;
 }
 

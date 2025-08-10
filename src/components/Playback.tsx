@@ -60,7 +60,7 @@ export function Playback() {
     textBuffer.current = txt
     // flatter, simpler background
     ctx.clearRect(0,0,c.width,c.height)
-    ctx.fillStyle = 'rgba(255,255,255,0.02)'
+    ctx.fillStyle = 'rgba(255,255,255,0.03)'
     ctx.fillRect(0,0,c.width,c.height)
     // text
     ctx.fillStyle = color
@@ -183,7 +183,7 @@ export function Playback() {
         </div>
         <div style={{ position: 'relative' }}>
           <canvas ref={canvasRef} width={1000} height={520} style={{ width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))', borderRadius: 8 }} />
-          <div style={{ position: 'absolute', top: 8, right: 12, fontSize: 12, color: 'var(--muted)', padding: '4px 8px', background: 'rgba(0,0,0,0.18)', borderRadius: 999 }}>{new Date(elapsedSec * 1000).toISOString().substring(14,19)}</div>
+          <div style={{ position: 'absolute', bottom: 12, right: 12, fontSize: 12, color: 'var(--muted)', padding: '4px 8px', background: 'rgba(0,0,0,0.18)', borderRadius: 999 }}>{new Date(elapsedSec * 1000).toISOString().substring(14,19)}</div>
         </div>
         <div
           style={{ position: 'relative', width: '100%', height: 16, background: 'rgba(255,255,255,0.08)', borderRadius: 999, cursor: 'pointer' }}
