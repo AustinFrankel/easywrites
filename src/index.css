@@ -104,14 +104,17 @@ input, textarea, select, button, [contenteditable="true"] {
 .editor-input:focus { outline: none; }
 .editor-input p { margin: 0; }
 
+/* Ensure first text baseline is aligned with placeholder start */
+.editor-input:has(p:empty)::before { content: '' }
+
 .editor-placeholder {
   position: absolute;
   top: 0px;
-  left: -1px; /* nudge to align exactly with caret */
+  left: 0; /* align exactly with caret */
   color: color-mix(in oklab, var(--ink) 40%, transparent);
   pointer-events: none;
   font: inherit;
-  font-size: 0.9em;
+  font-size: 1em;
   line-height: inherit;
 }
 
