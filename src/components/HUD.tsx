@@ -69,9 +69,9 @@ export function HUD() {
 
   return (
     <div className={`hud ${(hudVisible && !hiddenByIdle) ? '' : 'hide'}`} role="status" aria-live="polite">
-      <span className="chip" title="Words per minute">WPM: {wpm}</span>
-      <span className="chip">Chars: {chars}</span>
-      <span className="chip">Words: {words}</span>
+      <span className="chip" title="Words per minute">WPM: <span className="num">{wpm}</span></span>
+      <span className="chip">Chars: <span className="num">{chars}</span></span>
+      <span className="chip">Words: <span className="num">{words}</span></span>
       <span className="chip" title="Time on page">Time: {formatTime(focusSeconds)}</span>
       {compact && !showDetails ? (
         <button className="ghost" aria-label="More" onClick={() => setShowDetails(true)}>{'›'}</button>
@@ -103,6 +103,7 @@ export function HUD() {
                     width: 18,
                     height: 18,
                     borderRadius: 999,
+                    boxShadow: '0 0 0 2px color-mix(in oklab, var(--panel) 65%, transparent)',
                     verticalAlign: 'middle',
                     background: settings.gradient === 'brand'
                       ? 'linear-gradient(90deg, var(--brand), var(--accent))'

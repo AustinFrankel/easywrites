@@ -168,6 +168,7 @@ input, textarea, select, button, [contenteditable="true"] {
 }
 
 .chip { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.chip .num { display: inline-block; min-width: 2.4ch; text-align: right; }
 
 /* Ghost buttons: minimalist, with hover animation */
 .ghost {
@@ -195,6 +196,7 @@ input, textarea, select, button, [contenteditable="true"] {
   border-radius: 6px;
 }
 .hud .quick .color-trigger { width: 22px; height: 22px; border-radius: 6px; background: color-mix(in oklab, var(--panel) 70%, transparent); }
+.hud .quick .color-trigger > span { box-shadow: 0 0 0 2px color-mix(in oklab, var(--panel) 65%, transparent); }
 
 .color-pop { position: relative; }
 .color-pop .palette {
