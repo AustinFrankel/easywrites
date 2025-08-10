@@ -18,49 +18,36 @@ function countWords(text: string): number {
   return matches ? matches.length : 0
 }
 
-// Rolling WPM over 10s
+// Live WPM similar to Monkeytype: rolling window over recent seconds of typed characters only
 class RollingWPM {
-  private samples: Array<{ t: number; chars: number }> = []
-  private ema: number = 0
-  private initialized = false
-  addSample(chars: number) {
-    const t = Date.now()
-    const last = this.samples[this.samples.length - 1]
-    if (last && last.chars === chars) {
-      // ignore idle samples to avoid spurious 0 spikes
-      return
-    }
-    this.samples.push({ t, chars })
-    const cutoff = t - 10000
+  private samples: Array<{ t: number; totalTyped: number }> = []
+  private readonly windowMs = 5000
+  addSample(totalTyped: number) {
+    const now = Date.now()
+    this.samples.push({ t: now, totalTyped })
+    const cutoff = now - this.windowMs
     this.samples = this.samples.filter(s => s.t >= cutoff)
-    // update EMA from instant WPM when we have enough samples
-    if (this.samples.length >= 2) {
-      const first = this.samples[0]
-      const last = this.samples[this.samples.length - 1]
-      const deltaChars = Math.max(0, last.chars - first.chars)
-      const deltaMinutes = Math.max(1e-3, (last.t - first.t) / 60000)
-      const instant = (deltaChars / 5) / deltaMinutes
-      const alpha = 0.2
-      this.ema = this.initialized ? (alpha * instant + (1 - alpha) * this.ema) : instant
-      this.initialized = true
-    }
   }
   getWPM(): number {
-    if (!this.initialized) return 0
-    return Math.round(this.ema)
+    if (this.samples.length < 2) return 0
+    const first = this.samples[0]
+    const last = this.samples[this.samples.length - 1]
+    const deltaChars = Math.max(0, last.totalTyped - first.totalTyped)
+    const deltaMinutes = Math.max(1e-3, (last.t - first.t) / 60000)
+    return Math.round((deltaChars / 5) / deltaMinutes)
   }
 }
 
 export function Editor() {
   const { currentId, createDoc, saveDoc, settings } = useAppStore()
   const [doc, setDoc] = useState<Doc | null>(null)
-  // keep for future pause detection; currently unused intentionally
-  const [_lastInputAt, setLastInputAt] = useState<number>(0)
+  // keep for future pause detection; removed until used to satisfy linter
   const autosaveTimer = useRef<number | null>(null)
   const focusSeconds = useRef(0)
   const focusTick = useRef<number | null>(null)
   const workerRef = useRef<Worker | null>(ksWorker)
   const rolling = useRef(new RollingWPM())
+  const typedTotalRef = useRef<number>(0)
   const prevSize = useRef<number | null>(null)
 
   useEffect(() => {
@@ -123,8 +110,7 @@ export function Editor() {
     const text = doc?.content ?? ''
     const words = countWords(text)
     const chars = [...text].length
-    rolling.current.addSample(chars)
-    const wpm = chars === 0 ? 0 : rolling.current.getWPM()
+    const wpm = rolling.current.getWPM()
     const event = new CustomEvent('easywrites:metrics', {
       detail: { wpm, words, chars, typos: 0, focusSeconds: focusSeconds.current },
     })
@@ -133,7 +119,6 @@ export function Editor() {
 
   const onChange = (state: EditorState) => {
     const textContent = state.read(() => $getRoot().getTextContent())
-    setLastInputAt(Date.now())
     if (!doc) return
     const next: Doc = { ...doc, content: textContent, updatedAt: Date.now() }
     setDoc(next)
@@ -162,8 +147,7 @@ export function Editor() {
   }, [doc])
 
   useEffect(() => {
-    // init worker
-    // worker established in singleton
+    // init worker and record typed characters for WPM
     const onKey = (e: KeyboardEvent) => {
       if (!doc || !workerRef.current) return
       const selection = (document.getSelection?.()?.anchorOffset ?? 0) as number
@@ -172,10 +156,22 @@ export function Editor() {
       const from = selection
       const to = selection
       workerRef.current.postMessage({ type: 'log', payload: { t: Date.now(), op, ch, from, to } })
+      // Count only real character insertions (no modifiers) towards live WPM
+      if (!e.metaKey && !e.ctrlKey && !e.altKey && op === 'ins' && ch) {
+        typedTotalRef.current += 1
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [doc])
+
+  // Sample the typed character counter on a short interval so WPM decays smoothly when idle
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      rolling.current.addSample(typedTotalRef.current)
+    }, 250)
+    return () => window.clearInterval(id)
+  }, [])
 
   // Log style changes and content snapshots for playback fidelity
   useEffect(() => {
@@ -202,7 +198,7 @@ export function Editor() {
     prevSize.current = settings.size
   }, [settings.size])
 
-  // Keep metrics updating even when idle, prevents flashing to zero between keystrokes
+  // Keep metrics updating even when idle
   useEffect(() => {
     const id = window.setInterval(() => dispatchMetrics(), 700)
     return () => window.clearInterval(id)

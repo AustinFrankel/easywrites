@@ -23,7 +23,8 @@
   --font-rounded: ui-rounded, "SF Pro Rounded", "Nunito", "Quicksand", system-ui, sans-serif;
   --font-slab: "Roboto Slab", "Rockwell", "Zilla Slab", Cambria, serif;
   --editor-zoom: 1.18;
-  --editor-shift-x: 6vw;
+  /* Start text aligned under placeholder/caret */
+  --editor-shift-x: 0;
   --editor-shift-y: 36px;
 }
 

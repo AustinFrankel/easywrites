@@ -8,7 +8,7 @@ type SnapEvent = { t: number; kind: 'snap'; content: string }
 const MAX_EVENTS = 50000
 let buffer: Array<Keystroke | StyleEvent | SnapEvent> = []
 
-self.onmessage = (e: MessageEvent) => {
+self.onmessage = (e: MessageEvent<{ type: string; payload?: any }>) => {
   const { type, payload } = e.data || {}
   if (type === 'log') {
     buffer.push(payload as Keystroke)
@@ -17,7 +17,7 @@ self.onmessage = (e: MessageEvent) => {
     buffer.push(payload)
     if (buffer.length > MAX_EVENTS) buffer = buffer.slice(buffer.length - MAX_EVENTS)
   } else if (type === 'dump') {
-    ;(self as any).postMessage({ type: 'dump', payload: buffer })
+    ;(self as unknown as Worker).postMessage({ type: 'dump', payload: buffer })
   } else if (type === 'clear') {
     buffer = []
   }

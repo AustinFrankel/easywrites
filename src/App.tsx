@@ -12,7 +12,7 @@ import { Onboarding } from './components/Onboarding'
 
 function App() {
   const { settings } = useAppStore()
-  useEffect(() => { applyTheme(settings.theme) }, [])
+  useEffect(() => { applyTheme(settings.theme) }, [settings.theme])
   useGlobalShortcuts()
   return (
     <div onMouseDown={() => (document.querySelector('.editor-input') as HTMLElement | null)?.focus()}>

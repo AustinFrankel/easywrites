@@ -20,7 +20,7 @@ export function HUD() {
 
   useEffect(() => {
     const onMetrics = (e: Event) => {
-      const detail = (e as CustomEvent<any>).detail
+      const detail = (e as CustomEvent<{ wpm: number; chars: number; words: number; typos: number; focusSeconds: number }>).detail
       if (!detail) return
       setWpm(detail.wpm ?? wpm)
       setChars(detail.chars ?? chars)

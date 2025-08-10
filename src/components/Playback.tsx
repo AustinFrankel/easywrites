@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ksWorker } from '../editor/ks'
 
-type ExportFormat = 'mp4' | 'mov' | 'gif'
-
 type KS = { t: number; op: 'ins'|'del'; ch?: string; from: number; to: number }
 
 export function Playback() {
@@ -10,14 +8,12 @@ export function Playback() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [events, setEvents] = useState<KS[]>([])
   const [playing, setPlaying] = useState(false)
-  const [speed, setSpeed] = useState(1)
+  const [speed] = useState(1)
   const [progress, setProgress] = useState(0)
-  const [isScrubbing, setIsScrubbing] = useState(false)
-  const [speedMenuOpen, setSpeedMenuOpen] = useState(false)
-  const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  // scrubbing disabled
   const [elapsedSec, setElapsedSec] = useState(0)
   useEffect(() => {
-    const onKey = () => { setSpeedMenuOpen(false); setExportMenuOpen(false) }
+    const onKey = () => {}
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
@@ -33,7 +29,10 @@ export function Playback() {
 
   useEffect(() => {
     if (!open) return
-    const onMsg = (e: MessageEvent) => { if (e.data?.type === 'dump') setEvents(e.data.payload as any) }
+    const onMsg = (e: MessageEvent<{ type: string; payload?: KS[] }>) => {
+      const data: any = (e as unknown as MessageEvent).data
+      if (data?.type === 'dump') setEvents((data.payload || []) as KS[])
+    }
     ;(ksWorker as any).onmessage = onMsg
     ksWorker.postMessage({ type: 'dump' })
     return () => { (ksWorker as any).onmessage = null }
@@ -52,8 +51,8 @@ export function Playback() {
     let size = 18
     for (const e of events as any[]) {
       if (e.t > tCut) break
-      if (e.kind === 'style') { color = e.color || color; size = e.size || size }
-      else if (e.kind === 'snap') { txt = e.content }
+      if ((e as any).kind === 'style') { color = (e as any).color || color; size = (e as any).size || size }
+      else if ((e as any).kind === 'snap') { txt = (e as any).content }
       else if ((e as any).op === 'ins' && (e as any).ch) txt = txt.slice(0, (e as any).from) + (e as any).ch + txt.slice((e as any).to)
       else if ((e as any).op === 'del') txt = txt.slice(0, (e as any).from) + txt.slice((e as any).to)
     }
@@ -89,59 +88,7 @@ export function Playback() {
 
   const togglePlay = () => { setPlaying((p) => !p); startRef.current = 0 }
 
-  async function exportVideo(format: ExportFormat) {
-    const canvas = canvasRef.current!
-    const stream = (canvas as any).captureStream ? (canvas as any).captureStream(30) : null
-    if (!stream) return
-    // Record WebM first
-    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' })
-    const chunks: BlobPart[] = []
-    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data) }
-    recorder.onstop = async () => {
-      const webmBlob = new Blob(chunks, { type: 'video/webm' })
-      if (format === 'gif') {
-        await transcodeWithFFmpeg(webmBlob, 'gif')
-        return
-      }
-      if (format === 'mp4') {
-        await transcodeWithFFmpeg(webmBlob, 'mp4')
-        return
-      }
-      if (format === 'mov') {
-        await transcodeWithFFmpeg(webmBlob, 'mov')
-        return
-      }
-    }
-    recorder.start()
-    setPlaying(true)
-    const total = events[events.length - 1]?.t - events[0]?.t || 3000
-    setTimeout(() => { recorder.stop(); setPlaying(false) }, total / speed + 500)
-  }
-
-  async function transcodeWithFFmpeg(webmBlob: Blob, outExt: 'mp4' | 'mov' | 'gif') {
-    window.dispatchEvent(new CustomEvent('easywrites:toast', { detail: { message: 'Preparing export…' } }))
-    const mod: any = await import('@ffmpeg/ffmpeg')
-    const ffmpeg = mod.createFFmpeg({ log: false })
-    if (!ffmpeg.isLoaded()) await ffmpeg.load()
-    const inputName = 'input.webm'
-    const outputName = `output.${outExt}`
-    ffmpeg.FS('writeFile', inputName, new Uint8Array(await webmBlob.arrayBuffer()))
-    if (outExt === 'gif') {
-      await ffmpeg.run('-i', inputName, '-vf', 'fps=12,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse', outputName)
-    } else if (outExt === 'mp4') {
-      await ffmpeg.run('-i', inputName, '-movflags', 'faststart', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', outputName)
-    } else {
-      await ffmpeg.run('-i', inputName, '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', '-f', 'mov', outputName)
-    }
-    const data = ffmpeg.FS('readFile', outputName)
-    const blob = new Blob([data.buffer], { type: outExt === 'gif' ? 'image/gif' : outExt === 'mp4' ? 'video/mp4' : 'video/quicktime' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `playback.${outExt}`
-    a.click()
-    URL.revokeObjectURL(a.href)
-    window.dispatchEvent(new CustomEvent('easywrites:toast', { detail: { message: `Saved ${outExt.toUpperCase()}` } }))
-  }
+  // Export removed per simplified UI requirement
 
   // Auto-play when opened and data ready
   useEffect(() => { if (open && events.length > 0) { setPlaying(true); startRef.current = 0 } }, [open, events])
@@ -160,24 +107,8 @@ export function Playback() {
       <div style={{ width: 'min(1000px, 94vw)', height: '74vh', background: 'var(--panel)', color: 'var(--ink)', padding: 16, borderRadius: 12, display: 'grid', gridTemplateRows: 'auto 1fr auto', gap: 10 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <strong>Playback</strong>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', position: 'relative' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button className="ghost" onClick={togglePlay}>{playing ? 'Pause' : 'Play'}</button>
-            <span className={`speed-pop ${speedMenuOpen ? 'open' : ''}`}>
-              <button className="ghost" onClick={() => setSpeedMenuOpen(v => !v)}>{speed}x</button>
-              <div style={{ position: 'absolute', top: 30, right: 0, background: 'color-mix(in oklab, var(--panel) 92%, transparent)', borderRadius: 10, padding: 6, boxShadow: '0 10px 24px rgba(0,0,0,0.35)', display: speedMenuOpen ? 'flex' : 'none', gap: 4 }}>
-                {[1, 1.25, 1.5, 2, 3].map((s) => (
-                  <button key={s} className="ghost" onClick={() => setSpeed(s)}>{s}x</button>
-                ))}
-              </div>
-            </span>
-            <span style={{ position: 'relative' }}>
-              <button className="ghost" onClick={() => setExportMenuOpen(v => !v)}>Export</button>
-              <div style={{ position: 'absolute', top: 30, right: 0, background: 'color-mix(in oklab, var(--panel) 92%, transparent)', borderRadius: 10, padding: 6, boxShadow: '0 10px 24px rgba(0,0,0,0.35)', display: exportMenuOpen ? 'flex' : 'none', gap: 6 }}>
-                <button className="ghost" onClick={() => exportVideo('mp4')}>MP4</button>
-                <button className="ghost" onClick={() => exportVideo('mov')}>MOV</button>
-                <button className="ghost" onClick={() => exportVideo('gif')}>GIF</button>
-              </div>
-            </span>
             <button className="ghost" onClick={() => setOpen(false)}>Close</button>
           </div>
         </div>
@@ -185,29 +116,10 @@ export function Playback() {
           <canvas ref={canvasRef} width={1000} height={520} style={{ width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))', borderRadius: 8 }} />
           <div style={{ position: 'absolute', bottom: 12, right: 12, fontSize: 12, color: 'var(--muted)', padding: '4px 8px', background: 'rgba(0,0,0,0.18)', borderRadius: 999 }}>{new Date(elapsedSec * 1000).toISOString().substring(14,19)}</div>
         </div>
-        <div
-          style={{ position: 'relative', width: '100%', height: 16, background: 'rgba(255,255,255,0.08)', borderRadius: 999, cursor: 'pointer' }}
-          onMouseDown={(e) => {
-            setIsScrubbing(true)
-            const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
-            const p = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width))
-            setProgress(p)
-            drawAt(p)
-          }}
-          onMouseMove={(e) => {
-            if (!isScrubbing) return
-            const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
-            const p = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width))
-            setProgress(p)
-            drawAt(p)
-          }}
-          onMouseUp={() => { setIsScrubbing(false); if (playing) { startRef.current = 0 } else { drawAt(progress) } }}
-          onMouseLeave={() => setIsScrubbing(false)}
-        >
+        <div style={{ position: 'relative', width: '100%', height: 12, background: 'rgba(255,255,255,0.08)', borderRadius: 999 }}>
           <div style={{ position: 'absolute', inset: 0, borderRadius: 999, overflow: 'hidden' }}>
-            <div style={{ width: `${progress * 100}%`, height: '100%', background: 'linear-gradient(90deg, var(--brand), var(--accent))', transition: isScrubbing ? 'none' : 'width 200ms cubic-bezier(.22,.61,.36,1)' }} />
+            <div style={{ width: `${progress * 100}%`, height: '100%', background: 'linear-gradient(90deg, var(--brand), var(--accent))', transition: 'width 200ms cubic-bezier(.22,.61,.36,1)' }} />
           </div>
-          <div style={{ position: 'absolute', top: '50%', left: `${progress * 100}%`, transform: 'translate(-50%, -50%)', width: 16, height: 16, borderRadius: '50%', background: 'var(--ink)', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', transition: isScrubbing ? 'none' : 'left 160ms cubic-bezier(.22,.61,.36,1)' }} />
         </div>
       </div>
     </div>
