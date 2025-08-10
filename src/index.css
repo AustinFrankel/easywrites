@@ -110,7 +110,7 @@ input, textarea, select, button, [contenteditable="true"] {
 .editor-placeholder {
   position: absolute;
   top: 0px;
-  left: 0; /* align exactly with caret */
+  left: -1px; /* subpixel nudge to visually align with caret across DPRs */
   color: color-mix(in oklab, var(--ink) 40%, transparent);
   pointer-events: none;
   font: inherit;
@@ -263,6 +263,8 @@ input, textarea, select, button, [contenteditable="true"] {
 
 /* Responsive mobile refinements (do not affect desktop) */
 @media (max-width: 820px) {
+  /* On mobile the caret render differs slightly; tweak placeholder offset */
+  .editor-placeholder { left: -0.5px; }
   :root {
     --editor-zoom: 1.0;
     --editor-shift-x: 0;
